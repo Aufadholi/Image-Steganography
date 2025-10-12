@@ -1,0 +1,13 @@
+# This folder contains payload files to be embedded
+#
+# Supported types:
+# - Text files: .txt, .json, .md (small size recommended)
+# - Image files: .png, .jpg (16x16 to 64x64 recommended)
+#
+# Capacity guidelines:
+# - 512x512 cover: ~1-2KB text payload
+# - 1024x1024 cover: ~4-8KB payload  
+# - 2048x2048 cover: ~16-32KB payload
+#
+# Note: Large payload files are ignored by git
+# sample_text.txt and sample_image.png are included as examples

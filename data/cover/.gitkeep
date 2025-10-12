@@ -1,0 +1,12 @@
+# This folder contains cover images for steganography testing
+# 
+# Supported formats: PNG, JPG, JPEG, BMP, TIFF
+# Recommended: High-texture images (512x512 or larger)
+# 
+# Examples:
+# - Medical images (X-ray, CT scan, MRI)
+# - Textured photos (nature, architecture)
+# - Technical images (circuits, patterns)
+#
+# Note: Large images are ignored by git
+# Add your test images here for local testing

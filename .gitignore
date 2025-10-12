@@ -1,0 +1,144 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Project Specific - HASIL PROCESSING (BESAR!)
+data/results/
+!data/results/.gitkeep
+
+# Cover Images (bisa besar, kecuali sample)
+data/cover/*.png
+data/cover/*.jpg
+data/cover/*.jpeg
+data/cover/*.bmp
+data/cover/*.tiff
+!data/cover/default_cover.png
+
+# Large payload files (kecuali sample kecil)
+data/payloads/*.png
+data/payloads/*.jpg
+data/payloads/*.jpeg
+data/payloads/test_long.txt
+!data/payloads/sample_text.txt
+!data/payloads/sample_image.png
+
+# Output images (hasil steganografi)
+*_stego.png
+*_stego.jpg
+*_restored.png
+*_restored.jpg
+
+# Trace matrices (pickle files besar)
+*.pkl
+*.pickle
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Performance test results
+performance_*.json
+benchmark_*.txt
+
+# Large evaluation reports
+*_evaluation.json
+evaluation_*.json
+!sample_evaluation.json
+
+# Demo results
+demo_results.json
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# pytest cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Large datasets
+datasets/
+large_images/
+test_images_large/
+
+# Model weights (jika ada ML model)
+*.h5
+*.pth
+*.onnx
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Large binary files
+*.bin
+*.dat
+
+# Compressed files
+*.zip
+*.rar
+*.7z
+*.tar.gz

@@ -362,7 +362,16 @@ def extract_payload_metadata_header(binary):
     metadata = json.loads(metadata_json)
     
     # Extract payload binary
-    payload_binary = binary[32 + header_length:]
+    payload_binary_full = binary[32 + header_length:]
+    
+    # Use the actual payload length from metadata if available
+    if 'length' in metadata and metadata['type'] == 'text':
+        # For text, calculate the correct number of bits needed
+        expected_bits = metadata['length'] * 8  # 8 bits per character
+        payload_binary = payload_binary_full[:expected_bits]
+    else:
+        # For other types or when length is not available, use full binary
+        payload_binary = payload_binary_full
     
     return payload_binary, metadata
 

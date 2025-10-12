@@ -1,0 +1,1 @@
+Test payload panjang untuk system steganografi. Edge detection + LBP + reversible LSB embedding.

@@ -167,7 +167,7 @@ def extract_payload(stego_image, trace_matrix_path=None, trace_matrix=None,
     else:
         channel_to_extract = stego_image
     
-    # Extract LSBs
+    # Extract LSBs - use the full payload_length from trace matrix
     extracted_bits = []
     for i, (y, x) in enumerate(embedding_coords):
         if i < payload_length:

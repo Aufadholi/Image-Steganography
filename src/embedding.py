@@ -38,23 +38,48 @@ def embed_payload(cover_image, payload_path, config=None):
     # Preprocess cover image
     cover_gray = preprocess_image(cover_image)
     
-    # Adaptive threshold optimization if enabled
-    if config.get('use_adaptive_threshold', True):
-        from .edge_lbp import adaptive_threshold_optimization
-        edge_th, texture_th, capacity_ratio = adaptive_threshold_optimization(
-            cover_gray, target_psnr=config.get('target_psnr', 40.0)
-        )
-        config['edge_threshold'] = edge_th
-        config['texture_threshold'] = texture_th
-        config['max_capacity_ratio'] = capacity_ratio
+    # Get payload size for optimization
+    import os
+    payload_size = os.path.getsize(payload_path) if os.path.exists(payload_path) else 0
     
-    # Select embedding pixels using edge detection and LBP
-    embedding_mask, edge_maps, texture_strength, embedding_coords = select_embedding_pixels(
-        cover_gray, 
-        config['edge_threshold'], 
-        config['texture_threshold'],
-        config['max_capacity_ratio']
-    )
+    # Enhanced pixel selection with adaptive optimization
+    use_adaptive = config.get('use_adaptive_optimization', False)
+    
+    if use_adaptive:
+        print("🧠 Using adaptive multi-objective optimization...")
+        from .edge_lbp import adaptive_pixel_selection
+        
+        # Use enhanced adaptive pixel selection
+        embedding_mask, edge_maps, texture_strength, embedding_coords, optimization_info = adaptive_pixel_selection(
+            cover_image, payload_size, config, use_optimization=True
+        )
+        
+        # Update config with optimized parameters
+        config.update({
+            'edge_threshold': optimization_info['final_edge_threshold'],
+            'texture_threshold': optimization_info['final_texture_threshold'],
+            'max_capacity_ratio': optimization_info['final_capacity_ratio']
+        })
+        
+    else:
+        print("⚙️  Using standard pixel selection...")
+        # Adaptive threshold optimization if enabled (legacy)
+        if config.get('use_adaptive_threshold', True):
+            from .edge_lbp import adaptive_threshold_optimization
+            edge_th, texture_th, capacity_ratio = adaptive_threshold_optimization(
+                cover_gray, target_psnr=config.get('target_psnr', 40.0)
+            )
+            config['edge_threshold'] = edge_th
+            config['texture_threshold'] = texture_th
+            config['max_capacity_ratio'] = capacity_ratio
+
+        # Select embedding pixels using edge detection and LBP
+        embedding_mask, edge_maps, texture_strength, embedding_coords = select_embedding_pixels(
+            cover_gray, 
+            config['edge_threshold'], 
+            config['texture_threshold'],
+            config['max_capacity_ratio']
+        )
     
     # Calculate embedding capacity
     capacity = calculate_embedding_capacity(cover_gray.shape, embedding_coords)

@@ -365,3 +365,72 @@ def adaptive_threshold_optimization(image, target_psnr=40.0, min_capacity_ratio=
                     continue
     
     return best_edge_threshold, best_texture_threshold, best_capacity_ratio
+
+
+def adaptive_pixel_selection(image, payload_size, base_config, use_optimization=True):
+    """
+    Enhanced pixel selection with adaptive optimization capability
+    
+    Args:
+        image: Input image
+        payload_size: Size of payload in bytes
+        base_config: Base configuration parameters
+        use_optimization: Whether to use adaptive optimization
+    
+    Returns:
+        Selected pixels, edge maps, texture map, and optimization info
+    """
+    # Preprocess image
+    gray = preprocess_image(image)
+    
+    if use_optimization:
+        try:
+            # Import adaptive optimizer
+            from .adaptive_optimizer import AdaptiveHybridSteganography
+            
+            # Initialize adaptive optimizer
+            adaptive_optimizer = AdaptiveHybridSteganography()
+            
+            # Optimize parameters
+            optimized_config = adaptive_optimizer.optimize_parameters(
+                image, payload_size, base_config
+            )
+            
+            # Use optimized parameters
+            edge_threshold = optimized_config.get('edge_threshold', base_config.get('edge_threshold', 0.3))
+            texture_threshold = optimized_config.get('texture_threshold', base_config.get('texture_threshold', 0.4))
+            max_capacity_ratio = optimized_config.get('max_capacity_ratio', base_config.get('max_capacity_ratio', 0.1))
+            
+            print(f"📊 Using optimized parameters:")
+            print(f"   Edge threshold: {edge_threshold:.3f}")
+            print(f"   Texture threshold: {texture_threshold:.3f}")
+            print(f"   Max capacity ratio: {max_capacity_ratio:.3f}")
+            
+        except Exception as e:
+            print(f"⚠️  Adaptive optimization failed: {e}")
+            print("   Falling back to base configuration...")
+            use_optimization = False
+    
+    if not use_optimization:
+        # Use base configuration
+        edge_threshold = base_config.get('edge_threshold', 0.3)
+        texture_threshold = base_config.get('texture_threshold', 0.4)
+        max_capacity_ratio = base_config.get('max_capacity_ratio', 0.1)
+    
+    # Perform pixel selection with determined parameters
+    mask, edge_maps, texture_strength, embedding_coords = select_embedding_pixels(
+        gray, edge_threshold, texture_threshold, max_capacity_ratio
+    )
+    
+    # Prepare optimization info
+    optimization_info = {
+        'adaptive_optimization_used': use_optimization,
+        'final_edge_threshold': edge_threshold,
+        'final_texture_threshold': texture_threshold,
+        'final_capacity_ratio': max_capacity_ratio,
+        'selected_pixels_count': len(embedding_coords),
+        'total_pixels': gray.shape[0] * gray.shape[1],
+        'utilization_ratio': len(embedding_coords) / (gray.shape[0] * gray.shape[1])
+    }
+    
+    return mask, edge_maps, texture_strength, embedding_coords, optimization_info

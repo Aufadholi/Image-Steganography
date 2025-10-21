@@ -1,0 +1,174 @@
+applications:
+  e_government:
+    edge_threshold: 0.3
+    max_capacity_ratio: 0.1
+    min_psnr: 35.0
+    min_ssim: 0.92
+    texture_threshold: 0.4
+  forensic:
+    edge_threshold: 0.35
+    max_capacity_ratio: 0.08
+    min_psnr: 40.0
+    min_ssim: 0.95
+    texture_threshold: 0.45
+  medical:
+    edge_threshold: 0.4
+    max_capacity_ratio: 0.05
+    min_psnr: 45.0
+    min_ssim: 0.98
+    texture_threshold: 0.5
+development:
+  debug_mode: false
+  intermediate_results_dir: debug/
+  run_unit_tests: false
+  save_intermediate_results: false
+  strict_mode: false
+  test_data_dir: test_data/
+  validate_inputs: true
+edge_detection:
+  canny:
+    high_threshold: 150
+    kernel_size: 3
+    low_threshold: 50
+  combination:
+    threshold: 0.3
+    weights:
+      canny: 0.3
+      kirsch: 0.15
+      log: 0.15
+      prewitt: 0.2
+      sobel: 0.2
+  kirsch:
+    kernel_size: 3
+  laplacian_of_gaussian:
+    kernel_size: 5
+    sigma: 1.0
+  prewitt:
+    kernel_size: 3
+  sobel:
+    delta: 0
+    kernel_size: 3
+    scale: 1
+embedding:
+  add_metadata_header: true
+  color_channel: 0
+  pattern: sequential
+  payload:
+    auto_detect_type: true
+    max_payload_size_mb: 10
+    supported_image_extensions:
+    - .png
+    - .jpg
+    - .jpeg
+    - .bmp
+    - .tiff
+    supported_text_extensions:
+    - .txt
+    - .md
+    - .json
+evaluation:
+  create_plots: true
+  include_recommendations: true
+  metrics:
+    advanced:
+    - snr
+    - uqi
+    - entropy
+    - correlation
+    basic:
+    - psnr
+    - ssim
+    - mse
+    - mae
+    histogram:
+    - correlation
+    - intersection
+    - bhattacharyya
+    - kl_divergence
+    reversibility:
+    - perfect_restoration
+    - lossless_restoration
+  plot_dpi: 300
+  plot_formats:
+  - png
+  - pdf
+  save_detailed_report: true
+  save_json_report: true
+lbp:
+  method: uniform
+  n_points: 8
+  radius: 1
+  texture_threshold: 0.4
+logging:
+  backup_count: 5
+  level: INFO
+  log_file_path: logs/steganography.log
+  log_format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  log_to_file: true
+  max_log_size_mb: 10
+performance:
+  chunk_processing: false
+  chunk_size: 1024
+  max_image_size_mb: 100
+  max_workers: 4
+  progress_update_interval: 0.1
+  show_progress: true
+  use_multiprocessing: false
+pixel_selection:
+  adaptive_threshold:
+    capacity_ratio_range:
+    - 0.05
+    - 0.15
+    edge_threshold_range:
+    - 0.2
+    - 0.6
+    enabled: true
+    max_iterations: 10
+    target_psnr: 40.0
+    texture_threshold_range:
+    - 0.3
+    - 0.7
+  max_capacity_ratio: 0.1
+  min_capacity_ratio: 0.05
+  strategy: edge_and_texture
+  use_adaptive_optimization: true
+preprocessing:
+  apply_denoising: false
+  apply_enhancement: false
+  denoising_method: gaussian
+  enhancement_method: histogram_equalization
+  normalization_range:
+  - 0
+  - 255
+  normalize_images: true
+quality:
+  min_correlation: 0.95
+  min_psnr: 30.0
+  min_ssim: 0.9
+  quality_levels:
+    acceptable:
+      correlation: 0.9
+      psnr: 25
+      ssim: 0.9
+    excellent:
+      correlation: 0.99
+      psnr: 45
+      ssim: 0.98
+    good:
+      correlation: 0.95
+      psnr: 35
+      ssim: 0.95
+    poor:
+      correlation: 0.8
+      psnr: 15
+      ssim: 0.8
+  target_correlation: 0.98
+  target_psnr: 40.0
+  target_ssim: 0.95
+reversibility:
+  compress_trace_matrix: false
+  encryption_algorithm: AES256
+  password_protection: false
+  save_trace_matrix: true
+  tolerance: 0
+  verify_restoration: true

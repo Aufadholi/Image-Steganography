@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-10-22T00:45:04.747607",
+  "mri_mode": true,
+  "preprocessing_info": {
+    "original_shape": [
+      512,
+      512,
+      3
+    ],
+    "original_dtype": "uint8",
+    "steps_applied": [
+      "denoising",
+      "bias_correction",
+      "normalization",
+      "contrast_enhancement"
+    ],
+    "final_shape": [
+      512,
+      512,
+      3
+    ],
+    "final_dtype": "uint8"
+  },
+  "texture_analysis": {
+    "mean_texture_strength": 2499.923583984375,
+    "texture_entropy": 0.0814911710578715,
+    "texture_homogeneity": 0.9858679175376892
+  },
+  "embedding_parameters": {
+    "edge_threshold": 0.5000000000000001,
+    "texture_threshold": 0.3,
+    "max_capacity_ratio": 0.07,
+    "use_adaptive_threshold": 1.0,
+    "use_adaptive_optimization": 0.0,
+    "mri_mode": 1.0
+  },
+  "quality_metrics": {
+    "psnr": 67.49127826468191,
+    "ssim": 1.0,
+    "payload_verified": true,
+    "reversibility_perfect": {
+      "perfect_restoration": true,
+      "mse": 0.0,
+      "max_difference": 0,
+      "identical_pixels": 786432,
+      "total_pixels": 786432,
+      "identity_ratio": 1.0,
+      "different_pixels": 0
+    }
+  },
+  "roi_analysis": {
+    "pixels_selected": 0,
+    "safety_ratio": 0.0,
+    "overall_safety": true
+  },
+  "clinical_assessment": {
+    "clinical_grade": "A",
+    "composite_score": 0.9276284320328877,
+    "snr_db": 6.542686828765747,
+    "cnr_db": 9.755281650846705
+  }
+}

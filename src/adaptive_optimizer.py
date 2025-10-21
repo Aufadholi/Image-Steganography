@@ -1,6 +1,7 @@
 """
 Adaptive Multi-Objective Threshold Optimization for Hybrid Steganography
 Enhanced optimization layer for existing hybrid edge detection + LBP + reversible LSB system
+Specialized for MRI image characteristics and medical imaging requirements
 """
 
 import numpy as np
@@ -8,51 +9,67 @@ import cv2
 from typing import Dict, Tuple, List, Optional
 import random
 from datetime import datetime
+from scipy import ndimage
+from skimage import filters
 
 
-class ImageCharacteristicsAnalyzer:
-    """Analyze image characteristics to guide parameter optimization"""
+class MRIImageCharacteristicsAnalyzer:
+    """Analyze MRI image characteristics to guide parameter optimization"""
     
     def __init__(self):
         self.feature_weights = {
-            'texture_density': 0.3,
-            'edge_distribution': 0.25,
-            'noise_level': 0.2,
+            'texture_density': 0.25,
+            'edge_distribution': 0.2,
+            'noise_level': 0.15,
             'local_variance': 0.15,
-            'gradient_magnitude': 0.1
+            'gradient_magnitude': 0.1,
+            'contrast_variation': 0.1,
+            'anatomical_complexity': 0.05
+        }
+        
+        # MRI-specific thresholds and parameters
+        self.mri_params = {
+            'brain_tissue_range': (50, 200),  # Typical brain tissue intensity range
+            'noise_threshold': 10,  # MRI noise level threshold
+            'edge_sensitivity': 0.8,  # Edge detection sensitivity for MRI
+            'texture_complexity_threshold': 0.5
         }
     
     def analyze(self, image: np.ndarray) -> Dict:
         """
-        Comprehensive image analysis for adaptive optimization
+        Comprehensive MRI image analysis for adaptive optimization
         
         Args:
-            image: Input cover image
+            image: Input MRI cover image
             
         Returns:
-            Dictionary of image characteristics
+            Dictionary of MRI-specific image characteristics
         """
         if len(image.shape) == 3:
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         else:
             gray = image.copy()
         
-        # Calculate various image characteristics
+        # Calculate MRI-specific image characteristics
         characteristics = {
             'texture_density': self._calculate_texture_density(gray),
             'edge_distribution': self._analyze_edge_distribution(gray),
-            'noise_level': self._estimate_noise_level(gray),
+            'noise_level': self._estimate_mri_noise_level(gray),
             'local_variance': self._calculate_local_variance(gray),
             'gradient_magnitude': self._calculate_gradient_magnitude(gray),
+            'contrast_variation': self._calculate_contrast_variation(gray),
+            'anatomical_complexity': self._analyze_anatomical_complexity(gray),
+            'brain_tissue_ratio': self._calculate_brain_tissue_ratio(gray),
+            'intensity_distribution': self._analyze_intensity_distribution(gray),
             'image_complexity': 0.0,  # Will be calculated
-            'optimal_threshold_hint': {}  # Recommendations
+            'mri_specific_hints': {}  # MRI-specific recommendations
         }
         
-        # Calculate composite complexity score
-        characteristics['image_complexity'] = self._calculate_complexity_score(characteristics)
+        # Calculate composite complexity score for MRI
+        characteristics['image_complexity'] = self._calculate_mri_complexity_score(characteristics)
         
-        # Generate threshold recommendations
-        characteristics['optimal_threshold_hint'] = self._generate_threshold_hints(characteristics)
+        # Generate MRI-specific threshold recommendations
+        characteristics['mri_specific_hints'] = self._generate_mri_threshold_hints(characteristics)
         
         return characteristics
     
@@ -109,12 +126,146 @@ class ImageCharacteristicsAnalyzer:
         gradient_magnitude = np.sqrt(grad_x**2 + grad_y**2)
         return np.mean(gradient_magnitude) / 255.0  # Normalize
     
-    def _calculate_complexity_score(self, characteristics: Dict) -> float:
-        """Calculate composite complexity score"""
+    def _estimate_mri_noise_level(self, gray: np.ndarray) -> float:
+        """Estimate MRI-specific noise level"""
+        # Calculate noise in background regions (low intensity areas)
+        background_mask = gray < np.percentile(gray, 10)
+        if np.sum(background_mask) > 0:
+            background_std = np.std(gray[background_mask])
+            noise_level = background_std / 255.0
+        else:
+            # Fallback to Laplacian variance method
+            laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+            noise_level = min(laplacian_var / 1000.0, 1.0)
+        
+        return noise_level
+    
+    def _calculate_contrast_variation(self, gray: np.ndarray) -> float:
+        """Calculate contrast variation across the MRI image"""
+        # Use local standard deviation as contrast measure
+        kernel_size = 9
+        kernel = np.ones((kernel_size, kernel_size), np.float32) / (kernel_size * kernel_size)
+        
+        # Local mean
+        local_mean = cv2.filter2D(gray.astype(np.float32), -1, kernel)
+        
+        # Local standard deviation (contrast)
+        local_variance = cv2.filter2D((gray.astype(np.float32) - local_mean) ** 2, -1, kernel)
+        local_std = np.sqrt(local_variance)
+        
+        # Return coefficient of variation of local contrasts
+        contrast_variation = np.std(local_std) / (np.mean(local_std) + 1e-8)
+        return min(contrast_variation, 1.0)
+    
+    def _analyze_anatomical_complexity(self, gray: np.ndarray) -> float:
+        """Analyze anatomical complexity specific to MRI"""
+        # Use multi-scale edge detection to assess anatomical complexity
+        scales = [1, 2, 3]
+        complexity_scores = []
+        
+        for scale in scales:
+            # Apply Gaussian blur at different scales
+            blurred = cv2.GaussianBlur(gray, (scale*2+1, scale*2+1), scale)
+            
+            # Detect edges at this scale
+            edges = cv2.Canny(blurred, 30, 100)
+            edge_density = np.sum(edges > 0) / edges.size
+            complexity_scores.append(edge_density)
+        
+        # Combine scores from different scales
+        anatomical_complexity = np.mean(complexity_scores)
+        return anatomical_complexity
+    
+    def _calculate_brain_tissue_ratio(self, gray: np.ndarray) -> float:
+        """Calculate ratio of brain tissue vs background"""
+        brain_min, brain_max = self.mri_params['brain_tissue_range']
+        brain_tissue_mask = (gray >= brain_min) & (gray <= brain_max)
+        brain_ratio = np.sum(brain_tissue_mask) / gray.size
+        return brain_ratio
+    
+    def _analyze_intensity_distribution(self, gray: np.ndarray) -> Dict:
+        """Analyze intensity distribution characteristics"""
+        # Calculate histogram statistics
+        hist, _ = np.histogram(gray, bins=256, range=(0, 255))
+        hist_normalized = hist / np.sum(hist)
+        
+        # Calculate entropy
+        entropy = -np.sum(hist_normalized * np.log2(hist_normalized + 1e-8))
+        
+        # Calculate skewness and kurtosis approximations
+        mean_intensity = np.mean(gray)
+        std_intensity = np.std(gray)
+        
+        # Mode (most frequent intensity)
+        mode_intensity = np.argmax(hist)
+        
+        return {
+            'entropy': entropy / 8.0,  # Normalized
+            'mean': mean_intensity / 255.0,
+            'std': std_intensity / 255.0,
+            'mode': mode_intensity / 255.0,
+            'dynamic_range': (np.max(gray) - np.min(gray)) / 255.0
+        }
+    
+    def _calculate_mri_complexity_score(self, characteristics: Dict) -> float:
+        """Calculate MRI-specific composite complexity score"""
         score = 0.0
         for feature, weight in self.feature_weights.items():
-            score += characteristics[feature] * weight
+            if feature in characteristics:
+                score += characteristics[feature] * weight
         return score
+    
+    def _generate_mri_threshold_hints(self, characteristics: Dict) -> Dict:
+        """Generate MRI-specific threshold recommendations"""
+        complexity = characteristics['image_complexity']
+        brain_ratio = characteristics['brain_tissue_ratio']
+        noise_level = characteristics['noise_level']
+        anatomical_complexity = characteristics['anatomical_complexity']
+        
+        # Adaptive threshold recommendations for MRI
+        if complexity > 0.7 or anatomical_complexity > 0.3:  # High complexity MRI
+            hints = {
+                'edge_threshold_range': [0.3, 0.5],  # More conservative for complex anatomy
+                'texture_threshold_range': [0.4, 0.6],
+                'capacity_ratio_range': [0.05, 0.10],  # Lower capacity for safety
+                'preprocessing_recommendation': 'aggressive_denoising',
+                'roi_safety_margin': 7  # Larger safety margin
+            }
+        elif complexity > 0.4 or brain_ratio > 0.6:  # Medium complexity MRI
+            hints = {
+                'edge_threshold_range': [0.2, 0.4],
+                'texture_threshold_range': [0.3, 0.5],
+                'capacity_ratio_range': [0.08, 0.15],
+                'preprocessing_recommendation': 'moderate_denoising',
+                'roi_safety_margin': 5
+            }
+        else:  # Low complexity MRI (unusual but possible)
+            hints = {
+                'edge_threshold_range': [0.1, 0.3],
+                'texture_threshold_range': [0.2, 0.4],
+                'capacity_ratio_range': [0.10, 0.20],
+                'preprocessing_recommendation': 'light_denoising',
+                'roi_safety_margin': 3
+            }
+        
+        # Adjust based on noise level
+        if noise_level > 0.3:
+            hints['preprocessing_recommendation'] = 'aggressive_denoising'
+            hints['edge_threshold_range'] = [
+                hints['edge_threshold_range'][0] + 0.1,
+                hints['edge_threshold_range'][1] + 0.1
+            ]
+        
+        # Add MRI-specific recommendations
+        hints['mri_specific'] = {
+            'avoid_ventricles': True,
+            'prioritize_gray_matter': brain_ratio > 0.5,
+            'use_anatomical_segmentation': anatomical_complexity > 0.2,
+            'bias_field_correction': True,
+            'intensity_normalization': True
+        }
+        
+        return hints
     
     def _generate_threshold_hints(self, characteristics: Dict) -> Dict:
         """Generate threshold recommendations based on image characteristics"""
@@ -327,7 +478,7 @@ class AdaptiveHybridSteganography:
     """Main class for adaptive hybrid steganography"""
     
     def __init__(self):
-        self.analyzer = ImageCharacteristicsAnalyzer()
+        self.analyzer = MRIImageCharacteristicsAnalyzer()
         self.optimizer = MultiObjectiveOptimizer()
         
     def optimize_parameters(self, cover_image: np.ndarray, payload_size: int, 

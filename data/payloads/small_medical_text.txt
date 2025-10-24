@@ -1,0 +1,5 @@
+Medical Report - MRI Brain Scan
+Patient ID: MRI_DEMO_001
+Date: 2025-10-21
+FINDINGS: Normal brain examination.
+IMPRESSION: No abnormality detected.

@@ -23,7 +23,7 @@ class ClinicalEvaluator:
     
     def __init__(self):
         self.evaluation_criteria = {
-            'snr_threshold': 5.0,   # Minimum acceptable SNR (dB) - adjusted for steganography
+            'snr_threshold': 10.0,   # Increased minimum acceptable SNR (dB) for better clinical quality
             'cnr_threshold': 5.0,   # Minimum acceptable CNR (dB)
             'artifact_threshold': 0.05,  # Maximum acceptable artifact level
             'visual_grade_threshold': 3.0,  # Minimum visual grade (1-5 scale)
@@ -286,13 +286,20 @@ class ClinicalEvaluator:
     
     # Helper methods for metrics calculation
     def _calculate_snr(self, original_image, stego_image, roi_mask=None):
-        """Calculate Signal-to-Noise Ratio"""
+        """Calculate Signal-to-Noise Ratio with improved brain tissue detection"""
         if roi_mask is not None:
             signal = np.mean(stego_image[roi_mask])
             noise_std = np.std(stego_image[roi_mask] - original_image[roi_mask])
         else:
-            # Use brain tissue regions as signal
-            brain_mask = original_image > np.percentile(original_image, 10)
+            # Use improved brain tissue regions as signal (higher threshold for better tissue selection)
+            brain_mask = original_image > np.percentile(original_image, 20)  # Increased from 10%
+            
+            # Additional filtering for brain tissue (remove very dark regions)
+            brain_mask = brain_mask & (original_image > 0.1 * np.max(original_image))
+            
+            if np.sum(brain_mask) == 0:
+                brain_mask = original_image > np.percentile(original_image, 15)
+            
             signal = np.mean(stego_image[brain_mask])
             noise_std = np.std(stego_image[brain_mask] - original_image[brain_mask])
         

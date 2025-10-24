@@ -137,9 +137,9 @@ def demonstrate_mri_steganography(cover_path, text_payload_path, config, output_
     
     # Determine embedding parameters - optimized for clinical quality
     embedding_params = {
-        'edge_threshold': 0.1,  # Lower threshold for better quality
-        'texture_threshold': 0.3,  # Lower threshold for safer embedding
-        'max_capacity_ratio': 0.05,  # Reduced capacity for higher quality
+        'edge_threshold': 0.03,  # Ultra-conservative threshold for minimal noise
+        'texture_threshold': 0.15,  # Very low threshold for maximum signal preservation
+        'max_capacity_ratio': 0.01,  # Extremely reduced capacity for highest SNR
         'use_adaptive_threshold': True,
         'use_adaptive_optimization': False,
         'mri_mode': enable_mri_features
@@ -338,6 +338,15 @@ def demonstrate_mri_steganography(cover_path, text_payload_path, config, output_
         'timestamp': datetime.now().isoformat(),
         'mri_mode': enable_mri_features,
         'preprocessing_info': preprocessing_info,
+        'cover_image': {
+            'width': int(cover_image.shape[1]),
+            'height': int(cover_image.shape[0]),
+            'channels': int(cover_image.shape[2] if len(cover_image.shape) > 2 else 1)
+        },
+        'payload_info': {
+            'size_bytes': len(payload_text.encode('utf-8')),
+            'size_bits': len(payload_text.encode('utf-8')) * 8
+        },
         'texture_analysis': {
             'mean_texture_strength': float(comprehensive_features['summary']['mean_texture_strength']),
             'texture_entropy': float(comprehensive_features['summary']['texture_entropy']),
@@ -682,10 +691,18 @@ Examples:
         print(f"📄 Results saved to: {args.output}")
         print(f"📁 Output directory: {args.output}")
         
+        # Calculate BPP (Bits Per Pixel)
+        payload_size_bits = evaluation_report['payload_info']['size_bits']
+        image_pixels = evaluation_report['cover_image']['height'] * evaluation_report['cover_image']['width']
+        bpp = payload_size_bits / image_pixels
+        
         print(f"\n📊 SUMMARY:")
         print(f"   Mode: {'MRI-Enhanced' if args.mri_mode else 'Standard'}")
+        print(f"   Cover Image: {os.path.basename(cover_path)} ({evaluation_report['cover_image']['width']}x{evaluation_report['cover_image']['height']})")
+        print(f"   Payload Size: {evaluation_report['payload_info']['size_bytes']} bytes ({evaluation_report['payload_info']['size_bits']} bits)")
         print(f"   PSNR: {evaluation_report['quality_metrics']['psnr']:.2f} dB")
         print(f"   SSIM: {evaluation_report['quality_metrics']['ssim']:.4f}")
+        print(f"   BPP: {bpp:.6f} bits/pixel")
         print(f"   Payload verified: {'✓' if evaluation_report['quality_metrics']['payload_verified'] else '✗'}")
         print(f"   Reversibility: {'✓ Perfect' if evaluation_report['quality_metrics']['reversibility_perfect'] else '✗ Imperfect'}")
         

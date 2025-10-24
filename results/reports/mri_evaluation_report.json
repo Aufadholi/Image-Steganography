@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-22T00:45:04.747607",
+  "timestamp": "2025-10-25T00:22:36.318723",
   "mri_mode": true,
   "preprocessing_info": {
     "original_shape": [
@@ -21,13 +21,22 @@
     ],
     "final_dtype": "uint8"
   },
+  "cover_image": {
+    "width": 512,
+    "height": 512,
+    "channels": 3
+  },
+  "payload_info": {
+    "size_bytes": 626,
+    "size_bits": 5008
+  },
   "texture_analysis": {
-    "mean_texture_strength": 2499.923583984375,
-    "texture_entropy": 0.0814911710578715,
-    "texture_homogeneity": 0.9858679175376892
+    "mean_texture_strength": 99723.890625,
+    "texture_entropy": 1.0992682038086443,
+    "texture_homogeneity": 0.8266190886497498
   },
   "embedding_parameters": {
-    "edge_threshold": 0.5000000000000001,
+    "edge_threshold": 0.4000000000000001,
     "texture_threshold": 0.3,
     "max_capacity_ratio": 0.07,
     "use_adaptive_threshold": 1.0,
@@ -35,7 +44,7 @@
     "mri_mode": 1.0
   },
   "quality_metrics": {
-    "psnr": 67.49127826468191,
+    "psnr": 67.51853082889157,
     "ssim": 1.0,
     "payload_verified": true,
     "reversibility_perfect": {
@@ -49,14 +58,14 @@
     }
   },
   "roi_analysis": {
-    "pixels_selected": 0,
-    "safety_ratio": 0.0,
+    "pixels_selected": 323,
+    "safety_ratio": 1.0,
     "overall_safety": true
   },
   "clinical_assessment": {
     "clinical_grade": "A",
-    "composite_score": 0.9276284320328877,
-    "snr_db": 6.542686828765747,
-    "cnr_db": 9.755281650846705
+    "composite_score": 0.9424007372177956,
+    "snr_db": 8.646863493557358,
+    "cnr_db": 9.515869073101932
   }
 }
